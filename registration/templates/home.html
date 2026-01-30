@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AcaBuddy</title>
+    {% load static %}
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-blue: #007bff; /* For AcaBuddy text, active tabs, and nav */
+            --light-gray: #f4f6f9; /* Background color */
+            --text-dark: #333;
+            --text-light: #666;
+            --border-color: #eee;
+        }
+
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+        }
+
+        .app-container {
+            max-width: 600px; /* Typical mobile app width */
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header Styling --- */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px; 
+            width: 70%; 
+        }
+
+        .app-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-blue); /* Blue color for AcaBuddy text */
+            flex-shrink: 0; 
+        }
+        
+        .ask-question-btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 7px 12px; /* Padding for the rectangular button */
+            border-radius: 20px; /* Rounded pill shape */
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        .header-icon {
+            font-size: 1.2em;
+            color: var(--text-dark);
+        }
+
+
+        /* --- Subject Tabs Styling --- */
+        .subject-tabs {
+            display: flex;
+            overflow-x: scroll; 
+            padding: 10px 15px;
+            background-color: white;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .subject-tabs::-webkit-scrollbar {
+            display: none; 
+        }
+
+        .tab {
+            background: none;
+            border: none;
+            padding: 8px 15px;
+            margin-right: 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: var(--text-light);
+            white-space: nowrap; 
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background-color: rgba(0, 123, 255, 0.1); 
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        /* --- Feed Content Styling --- */
+        .feed-content {
+            flex-grow: 1; 
+            padding-bottom: 70px; 
+            overflow-y: auto;
+        }
+
+        .post-card {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+            background-color: #007bff; 
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .username {
+            font-weight: bold;
+        }
+
+        .institution {
+            font-size: 0.8em;
+            color: var(--text-light);
+        }
+
+        .post-body p {
+            line-height: 1.4;
+            font-size: 1em;
+            margin: 10px 0;
+        }
+
+        /* --- Engagement Bar Styling --- */
+        .post-engagement {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-item i {
+            font-size: 1.1em;
+        }
+
+        .xp-gain {
+            color: green;
+            font-weight: bold;
+        }
+
+        /* --- Bottom Navigation Styling --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 600px; 
+            height: 60px;
+            background-color: white;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 0.7em;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+
+        .nav-item i {
+            font-size: 1.4em; 
+            margin-bottom: 3px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-blue); 
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <header class="app-header">
+            <div class="header-left">
+                <div class="brand">
+                    <img src="{% static 'images/logo.png' %}" alt="AcaBuddy logo">
+                    <span class="app-name">AcaBuddy</span>
+                </div>
+                <!-- <button class="ask-question-btn"> -->
+                <a href = "{% url 'ask_question' %}" class = "ask-question-btn">
+                    <i class="fas fa-plus"></i>
+                    Ask your question
+                </a>
+                <!-- </button> -->
+            </div>
+            <div class="header-right">
+                <!-- <i class="fas fa-search header-icon"></i> -->
+                <a href="{% url 'profile' %}">
+                    <i class="fas fa-user header-icon"></i>
+                </a>
+            </div>
+        </header>
+
+        <div style="
+            display: flex;
+            gap: 8px;
+            padding: 10px 15px;
+            overflow-x: auto;
+            border-bottom: 1px solid #eee;
+            background: white;
+        ">
+
+            <!-- All -->
+            {% if not active_tag %}
+            <a href="{% url 'home' %}"
+            style="
+                padding: 6px 14px;
+                border-radius: 20px;
+                font-size: 0.85em;
+                font-weight: 500;
+                text-decoration: none;
+                background-color: #007bff;
+                color: white;
+            ">
+                All
+            </a>
+            {% else %}
+            <a href="{% url 'home' %}"
+            style="
+                padding: 6px 14px;
+                border-radius: 20px;
+                font-size: 0.85em;
+                font-weight: 500;
+                text-decoration: none;
+                background-color: #f1f1f1;
+                color: #555;
+            ">
+                All
+            </a>
+            {% endif %}
+
+
+            {% for tag in top_tags %}
+                {% if tag == active_tag %}
+                    <a href="{% url 'home' %}?tag={{ tag }}"
+                    style="
+                        padding: 6px 14px;
+                        border-radius: 20px;
+                        font-size: 0.85em;
+                        font-weight: 500;
+                        text-decoration: none;
+                        white-space: nowrap;
+                        background-color: #007bff;
+                        color: white;
+                    ">
+                        {{ tag }}
+                    </a>
+                {% else %}
+                    <a href="{% url 'home' %}?tag={{ tag }}"
+                    style="
+                        padding: 6px 14px;
+                        border-radius: 20px;
+                        font-size: 0.85em;
+                        font-weight: 500;
+                        text-decoration: none;
+                        white-space: nowrap;
+                        background-color: rgba(0, 123, 255, 0.1);
+                        color: #007bff;
+                    ">
+                        {{ tag }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+
+        <main class="feed-content">
+            {% for q in questions %}
+            <div class="post-card">
+                <div class="post-header">
+                    {% if q.user.profile.avatar %}
+                        <img src="{{ q.user.profile.avatar.url }}" class="avatar">
+                    {% else %}
+                        <div class="avatar"></div>
+                    {% endif %}
+                    <div class="user-info">
+                        <span class="username">{{ q.user.username }}</span>
+                    </div>
+                </div>
+                <div class="post-body">
+                    <p><b> {{ q.title|truncatechars:250 }} </b></p>
+                    <p> {{ q.body|truncatechars:250 }}</p>
+                </div>
+                {% if q.tag_list %}
+                <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
+                    {% for tag in q.tag_list %}
+                        <span
+                            style="
+                                background-color: rgba(0, 123, 255, 0.1);
+                                color: #007bff;
+                                padding: 4px 10px;
+                                border-radius: 15px;
+                                font-size: 0.75em;
+                                font-weight: 500;
+                            "
+                        >
+                            {{ tag }}
+                        </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class = "post-engagement">
+                    <a href="{%url 'question_detail' q.id %}" class = 'action-item'>
+                        <i class = "far fa-comment"></i>
+                        <span>{{ q.answers.count }} Answers</span>
+                    </a>
+                    <div class="action-item xp-gain">
+                        <i class = "fas fa-star"></i>
+                        <span>+10 XP</span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p style="text-align: center; padding: 20px;">No questions yet.</p>
+            {% endfor %}
+        </main>
+
+        <nav class="bottom-nav">
+            <a href="{% url 'home' %}" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="{% url 'leaderboard' %}" class="nav-item">
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Progress</span>
+            </a>
+            <a href="{% url 'profile' %}" class="nav-item">
+                <i class="fas fa-user"></i> 
+                <span>Profile</span>
+            </a>
+        </nav>
+
+    </div>
+</body>
+</html>

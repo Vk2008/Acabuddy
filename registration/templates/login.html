@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang = 'en'>
+    <head>
+        <title>Login</title>
+        {% load static %}
+
+        <!-- Favicon -->
+        <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+    </head>
+    <body>
+        <form method="post">
+            {% csrf_token %}
+            <h2 class="brand">
+                <img src="{% static 'images/logo.png' %}">
+                AcaBuddy
+            </h2>
+            <label for="username">Username</label>
+            <input type="text" placeholder="Username" id="username" name="username">
+            
+            <label for="password">Password</label>
+            <input type="password" placeholder="Password" id="password" name="pass">
+            
+            <button type="submit">Log In</button>
+            <a href="{% url 'signup' %}">Create an account</a>
+        </form>
+    </body>
+</html>
+<style>
+    body{
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background: #f2f6ff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    form{
+        background: #ffffff;
+        width: 350px;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+
+    /* AcaBuddy Title */
+    h3{
+        color: #1e4ed8;   /* AcaBuddy blue */
+        font-size: 28px;
+        margin-bottom: 25px;
+        font-weight: 700;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: #1e4ed8;
+        margin-bottom: 25px;
+        font-size: 26px;
+    }
+
+    .brand img {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+    }
+
+
+    label{
+        display: none;
+    }
+
+    input{
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border: 1px solid #cfd6e3;
+        border-radius: 8px;
+        font-size: 15px;
+    }
+
+    button{
+        width: 100%;
+        padding: 12px;
+        margin-top: 15px;
+        background: #1e4ed8;
+        border: none;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: 0.2s ease;
+    }
+
+    button:hover{
+        background: #163bb8;
+    }
+
+    a{
+        display: block;
+        margin-top: 15px;
+        font-size: 14px;
+        color: #1e4ed8;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    a:hover{
+        text-decoration: underline;
+    }
+</style>

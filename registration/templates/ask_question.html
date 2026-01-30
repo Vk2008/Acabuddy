@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AcaBuddy - Ask Question</title>
+    {% load static %}
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .app-name {
+            color: #0066cc;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .back-btn {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+        
+        .back-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        textarea.input-field {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .image-upload-area {
+            padding: 15px;
+            border: 1px dashed #ccc;
+            border-radius: 6px;
+            background: #fafafa;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .image-upload-area:hover {
+            background: #f0f8ff;
+            border-color: #0066cc;
+        }
+        
+        .tags-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .tag {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .tag.add-tag {
+            font-weight: bold;
+            background: #e9ecef;
+        }
+        
+        .tag:hover {
+            background: #e0e0e0;
+        }
+        
+        .tag.selected {
+            background: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .btn-draft {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .btn-draft:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-post {
+            background: #0066cc;
+            color: white;
+        }
+        
+        .btn-post:hover {
+            background: #0055aa;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="brand">
+            <header class="app-header">
+            <img src="{% static 'images/logo.png' %}" alt="AcaBuddy logo">
+            <span class="app-name">AcaBuddy</span>
+            </header>
+        </div>
+        <a href="{% url 'home' %}" class="back-btn">← Back to Home</a>
+    </div>
+    
+    <div class="form-container">
+        <form method = "post">
+            {%csrf_token %}
+            <div class="form-group">
+                <label>Question Title</label>
+                {{ form.title }}
+            </div>
+            
+            <div class="form-group">
+                <label>Details</label>
+                {{ form.body }}
+                <!-- <div class="image-upload-area" onclick="document.getElementById('image-input').click()">
+                    Click to upload image
+                    <input type="file" id="image-input" accept="image/*" style="display: none;">
+                </div> -->
+            </div>
+            <div class="form-group">
+                <label>Add Subject Tags</label>
+                <div class="tags-container" id="tagsContainer">
+                    <div class="tag" data-tag="Mathematics">Mathematics</div>
+                    <div class="tag" data-tag="Physics">Physics</div>
+                    <div class="tag" data-tag="Chemistry">Chemistry</div>
+                    <div class="tag" data-tag="Biology">Biology</div>
+                    <div class="tag add-tag" id="addTagBtn">+</div>
+                </div>
+                {{ form.tags.as_hidden }}
+
+                <input
+                type="text"
+                id="customTagInput"
+                class="input-field"
+                placeholder="Enter subject tag and press Enter"
+                style="margin-top: 10px; display: none;"
+                >
+            </div>
+            <div class="form-group">
+                <label>Attach Image</label>
+                {{ form.image }}
+            </div>
+            
+            <div class="buttons">
+                <!-- <button class="btn btn-draft" onclick="saveDraft()">Save Draft</button> -->
+                <button class="btn btn-post"">Post Question</button>
+            </div>
+    </div>
+
+    <script>
+        // Tag selection
+        const tagsContainer = document.getElementById('tagsContainer');
+        const hiddenTagInput = document.querySelector('input[name="tags"]');
+        const addTagBtn = document.getElementById('addTagBtn');
+        const customTagInput = document.getElementById('customTagInput');
+
+        let selectedTags = [];
+
+        tagsContainer.addEventListener('click', function(e) {
+            const tag = e.target;
+
+            if (!tag.classList.contains('tag')) return;
+
+            if (tag.classList.contains('add-tag')) {
+                customTagInput.style.display = 'block';
+                customTagInput.focus();
+                return;
+            }
+
+            const value = tag.dataset.tag;
+
+            if (selectedTags.includes(value)) {
+                selectedTags = selectedTags.filter(t => t !== value);
+                tag.classList.remove('selected');
+            } else {
+                selectedTags.push(value);
+                tag.classList.add('selected');
+            }
+
+            hiddenTagInput.value = selectedTags.join(',');
+        });
+
+        customTagInput.addEventListener('keydown', function(e){
+            if (e.key === 'Enter') {
+                e.preventDefault();
+
+                const value = customTagInput.value.trim();
+                if(!value) return;
+
+                if (selectedTags.includes(value)) {
+                    customTagInput.value = '';
+                    customTagInput.style.display = 'none';
+                    return;
+                }
+
+                const newTag = document.createElement('div');
+                newTag.className = 'tag selected';
+                newTag.dataset.tag = value;
+                newTag.textContent = value;
+
+                tagsContainer.insertBefore(newTag, addTagBtn);
+
+                selectedTags.push(value);
+                hiddenTagInput.value = selectedTags.join(',');
+
+                customTagInput.value = '';
+                customTagInput.style.display = 'none';
+            }
+        });
+        
+        // // Image upload
+        // const imageInput = document.getElementById('image-input');
+        // const uploadArea = document.querySelector('.image-upload-area');
+        
+        // imageInput.addEventListener('change', function(e) {
+        //     if (e.target.files.length > 0) {
+        //         uploadArea.textContent = e.target.files[0].name;
+        //         uploadArea.style.background = '#e6f2ff';
+        //         uploadArea.style.borderColor = '#0066cc';
+        //         uploadArea.style.borderStyle = 'solid';
+        //     }
+        // });
+        
+        // // Save draft function
+        // function saveDraft() {
+        //     const btn = document.querySelector('.btn-draft');
+        //     const originalText = btn.textContent;
+        //     btn.textContent = 'Saved';
+        //     btn.style.background = '#e0ffe0';
+        //     btn.style.color = '#006600';
+            
+        //     setTimeout(() => {
+        //         btn.textContent = originalText;
+        //         btn.style.background = '#f0f0f0';
+        //         btn.style.color = '#666';
+        //     }, 1500);
+        // }
+    </script>
+</body>
+</html>

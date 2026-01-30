@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Details</title>
+    {% load static %}
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* --- General Variables and Reset (Blue Theme) --- */
+        :root {
+            --primary-blue: #007bff; /* Main action color (Blue Theme) */
+            --background-light: #f7f7f7; /* Main background */
+            --card-white: #ffffff;
+            --text-dark: #212529; /* Dark text for headings */
+            --text-muted: #6c757d; /* Gray text for details/bio */
+            --border-light: #e9ecef;
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --radius-default: 8px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px; /* Padding for visualization as a standalone component */
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.4;
+            font-size: 14px; 
+            
+        }
+
+        /* --- Component Container Styling --- */
+        .answer-box-container {
+            max-width: 600px; /* Typical mobile width constraint */
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 16px; 
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        /* --- NEW: Back to Home Button Styling --- */
+        .back-nav-box {
+            margin-bottom: 20px;
+            background-color: var(--card-white);
+            padding: 10px 15px;
+            border-radius: var(--radius-default);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .back-nav-link {
+            text-decoration: none;
+            color: var(--primary-blue);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+
+        .back-nav-link i {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .back-nav-link:hover {
+            color: #0056b3;
+        }
+
+
+        /* --- Answer Submission Box Styling --- */
+        .answer-submission-box {
+            background-color: var(--card-white);
+            padding: 15px;
+            border-radius: var(--radius-default);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        #answerTextarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            font-size: 13px;
+            resize: vertical;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            font-family: Arial, sans-serif;
+        }
+
+        #answerTextarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .submission-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .upload-btn {
+            background-color: var(--background-light);
+            color: var(--primary-blue);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .upload-btn i {
+            margin-right: 5px;
+        }
+
+        .upload-btn:hover {
+            background-color: var(--border-light);
+        }
+
+        .submit-btn {
+            background-color: var(--primary-blue);
+            color: var(--card-white);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .upload-status {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 10px;
+            text-align: right;
+            display: none; 
+        }
+
+        .ai-badge {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 4px 10px;
+            background: #e6f4ea;
+            color: #137333;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .ai-score {
+            font-size: 12px;
+            color: #555;
+            margin-top: 4px;
+        }
+
+        .ai-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .ai-modal-content {
+            background: white;
+            max-width: 500px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            overflow-y: auto;
+        }
+        .ai-audit-scroll {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 8px;
+            overflow-y: auto; 
+            max-height: 200px;
+            white-space: pre-wrap; /* line breaks and spacing */
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 0.9em;
+        }
+
+        .ai-close {
+            float: right;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .preserve-breaks {
+            white-space: pre-wrap;
+            word-wrap: break-word; 
+        }
+
+        .ai-attribution-safe {
+            font-size: 0.75rem;
+            color: #888;
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dotted #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="answer-box-container">
+
+        <div class="back-nav-box">
+            <a href="{% url 'home' %}" class="back-nav-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
+        <div class="answer-submission-box" style="margin-bottom: 20px;">
+            <h2>{{ question.title }}</h2>
+            <div class="preserve-breaks"><p>{{ question.body }}</p></div>
+            {% if question.image %}
+                <img src="{{ question.image.url }}"
+                    style="max-width:100%; margin-top:10px; border-radius:6px;">
+            {% endif %}
+            <small>Asked by {{ question.user.username }}</small>
+        </div>
+
+        <h3 class="section-title">Answers</h3>
+
+        <div class="answer-submission-box" style="margin-bottom: 20px;">
+        {% for ans in answers %}
+            <div style="margin-bottom: 15px;">
+                <div class="preserve-breaks"><p>{{ ans.body }}</p></div>
+                {% if ans.image %}
+                    <img src="{{ ans.image.url }}"
+                        style="max-width:100%; margin:10px 0; border-radius:6px;">
+                {% endif %}
+                <small>By {{ ans.user.username }}</small>
+                
+                {% if ans.ai_score is not None %}
+                    {% if ans.ai_score > 0.6 %}
+                        <div class="ai-badge" onclick="openModal('{{ ans.pk }}')">
+                            ✔ AI Verified
+                        </div>
+                    {% else %}
+                        <div class="ai-badge" style="background-color: #fce8e6; color: #c5221f;" onclick="openModal('{{ ans.pk }}')">
+                            ✕ Not Verified
+                        </div>
+                    {% endif %}
+                    <div class="ai-score">
+                        Score: {{ ans.ai_score }}
+                    </div>
+                {% endif %}
+            </div>
+            <hr>
+
+            <!-- AI Modal -->
+            <div id="modal-{{ ans.id }}" class="ai-modal">
+                <div class="ai-modal-content">
+                    <span class="ai-close" onclick="closeModal('{{ ans.pk }}')">✕</span>
+
+                    <h4>AI Verdict</h4>
+
+                    <div class="ai-summary">
+                        <p><strong>Score:</strong> {{ ans.ai_score }}</p>
+
+                        <p><strong>Reasoning:</strong><br>
+                            {{ ans.ai_reasoning }}
+                        </p>
+                    </div>
+
+                        {% if ans.ai_audit %}
+                            <p><strong>Audit Details:</strong></p>
+                            <div class="ai-audit-scroll">{{ ans.ai_audit }}</div>
+                        {% endif %}
+                    <div class="ai-attribution-safe">
+                        AI Insights powered by <strong>Llama & Mistral</strong> 
+                        via <strong>Cerebras & OpenRouter</strong>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>No answers yet.</p>
+        {% endfor %}
+        </div>
+
+        <h3 class="section-title">Submit Your Answer</h3>
+        <div class="answer-submission-box">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="submit-btn">Submit Answer</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+    function openModal(id) {
+        document.getElementById(`modal-${id}`).style.display = "block";
+    }
+
+    function closeModal(id) {
+        document.getElementById(`modal-${id}`).style.display = "none";
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Account Settings</title>
+    {% load static %}
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-blue: #007bff; 
+            --light-gray: #f4f6f9; 
+            --text-dark: #333;
+            --text-light: #666;
+            --border-color: #eee;
+        }
+
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+        }
+
+        .app-container {
+            max-width: 600px; 
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header Styling --- */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px; 
+            width: 70%; 
+        }
+
+        .app-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-blue); 
+            flex-shrink: 0; 
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        
+        /* Updated Ask Question Button Styling */
+        .ask-question-btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 7px 12px; /* Padding for the rectangular button */
+            border-radius: 20px; /* Rounded pill shape */
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        .header-icon {
+            font-size: 1.2em;
+            color: var(--text-dark);
+        }
+
+
+        /* --- Subject Tabs Styling --- */
+        .subject-tabs {
+            display: flex;
+            overflow-x: scroll; 
+            padding: 10px 15px;
+            background-color: white;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .subject-tabs::-webkit-scrollbar {
+            display: none; 
+        }
+
+        .tab {
+            background: none;
+            border: none;
+            padding: 8px 15px;
+            margin-right: 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: var(--text-light);
+            white-space: nowrap; 
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background-color: rgba(0, 123, 255, 0.1); 
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        /* --- Feed Content Styling --- */
+        .feed-content {
+            flex-grow: 1; 
+            padding-bottom: 70px; 
+            overflow-y: auto;
+        }
+
+        .post-card {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+            /* Placeholder styling for avatar */
+            background-color: #007bff; 
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .username {
+            font-weight: bold;
+        }
+
+        .institution {
+            font-size: 0.8em;
+            color: var(--text-light);
+        }
+
+        .post-body p {
+            line-height: 1.4;
+            font-size: 1em;
+            margin: 10px 0;
+        }
+
+        /* --- Engagement Bar Styling --- */
+        .post-engagement {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-item i {
+            font-size: 1.1em;
+        }
+
+        .xp-gain {
+            color: green;
+            font-weight: bold;
+        }
+
+        /* --- Bottom Navigation Styling --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 600px; 
+            height: 60px;
+            background-color: white;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 0.7em;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+
+        .nav-item i {
+            font-size: 1.4em; 
+            margin-bottom: 3px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-blue); 
+        }
+
+        .back-btn {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+        
+        .back-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .settings-section {
+            padding: 15px;
+        }
+
+        .settings-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em;
+        }
+
+        .settings-item a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-size: 0.9em;
+        }        
+    </style>
+</head>
+<body>
+<div class="app-container">
+
+    <!-- Header -->
+    <div class="app-header">
+        <div class="header-left">
+            <div class="brand">
+                <img src="{% static 'images/logo.png' %}" alt="AcaBuddy logo">
+                <span class="app-name">AcaBuddy</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <a href="{% url 'profile' %}" class="back-btn">
+                ← Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="feed-content" style="padding:15px;">
+
+        <!-- Change Username -->
+        <div class="post-card">
+            <h3 style="margin-bottom:10px;">Change Username</h3>
+            <form method="post">
+                {% csrf_token %}
+                {{ username_form.username }}
+                <button type="submit"
+                        name="update_username"
+                        class="ask-question-btn"
+                        style="margin-top:10px;">
+                    Update Username
+                </button>
+            </form>
+        </div>
+
+        <!-- Profile Picture -->
+        <div class="post-card">
+            <h3 style="margin-bottom:10px;">Profile Picture</h3>
+
+            {% if request.user.profile.avatar %}
+                <img src="{{ request.user.profile.avatar.url }}"
+                     class="avatar"
+                     style="margin-bottom:10px;">
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ picture_form.avatar }}
+                <button type="submit"
+                        name="update_picture"
+                        class="ask-question-btn"
+                        style="margin-top:10px;">
+                    Upload Picture
+                </button>
+            </form>
+        </div>
+
+        <!-- Change Password -->
+        <div class="post-card">
+            <h3 style="margin-bottom:10px;">Change Password</h3>
+            <form method="post">
+                {% csrf_token %}
+                {{ password_form.as_p }}
+                <button type="submit"
+                        name="update_password"
+                        class="ask-question-btn"
+                        style="margin-top:10px;">
+                    Change Password
+                </button>
+            </form>
+        </div>
+
+        <!-- Logout -->
+        <div class="post-card" style="border-left:4px solid red;">
+            <a href="{% url 'logout' %}"
+               style="color:red; font-weight:600;">
+                Logout
+            </a>
+        </div>
+
+    </div>
+</div>
+</body>
+
+</html>
