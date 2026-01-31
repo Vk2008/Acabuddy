@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-key')
 # DEBUG = os.getenv("RENDER") is None
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [*]
+ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
@@ -138,6 +138,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
+
 
 
 
