@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-key')
 # DEBUG = os.getenv("RENDER") is None
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['acabuddy-l40x.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = [*]
 # Application definition
 
 INSTALLED_APPS = [
@@ -123,9 +123,12 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -135,5 +138,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
+
 
 
