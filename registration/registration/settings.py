@@ -138,18 +138,3 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
-
-
-
-
-
-if os.environ.get("CREATE_SUPERUSER") == "True":
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-
-    if not User.objects.filter(username="admin").exists():
-        User.objects.create_superuser(
-            username="admin",
-            email="vk18012008@gmail.com",
-            password="account@AK47"
-        )
