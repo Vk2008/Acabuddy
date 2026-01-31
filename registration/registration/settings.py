@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-key')
 # DEBUG = os.getenv("RENDER") is None
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['acabuddy.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['acabuddy-l40x.onrender.com', 'localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
@@ -132,3 +132,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
+
