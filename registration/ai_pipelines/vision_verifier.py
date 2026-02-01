@@ -8,8 +8,9 @@ MODEL = "mistralai/pixtral-12b"
 
 
 def encode_image(path):
-    with open(path, "rb") as f:
-        return base64.b64encode(f.read()).decode()
+    response = requests.get(url, timeout=15)
+    response.raise_for_status()  # raise error if download fails
+    return base64.b64encode(response.content).decode()
 
 
 def verify_image_answer(question_text, answer_text, image_path, domain):
@@ -83,4 +84,5 @@ def verify_image_answer(question_text, answer_text, image_path, domain):
     except (json.JSONDecodeError, KeyError) as e:
         return {
             "score": 0.0, "reasoning": "AI service not available", "audit": "AI service not available"
+
         }
