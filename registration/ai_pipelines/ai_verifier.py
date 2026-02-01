@@ -123,7 +123,7 @@ def verify_answer(question: str, answer_text: str, domain: str):
         return {
             "score": float(result.get("score", 0.0)),
             "reasoning": result.get("reasoning", ""),
-            "audit_details": diffs,
+            "audit": diffs,
             "verified": result["score"] >= 0.6
         }
 
@@ -131,7 +131,8 @@ def verify_answer(question: str, answer_text: str, domain: str):
         return {
             "score": 0.0,
             "reasoning": "AI verification failed due to malformed response.",
-            "audit_details": verdict_json,
+            "audit": verdict_json,
             "verified": 0
         }
+
 
