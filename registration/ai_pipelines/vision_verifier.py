@@ -7,7 +7,7 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 MODEL = "mistralai/pixtral-12b"
 
 
-def encode_image(path):
+def encode_image(url):
     response = requests.get(url, timeout=15)
     response.raise_for_status()  # raise error if download fails
     return base64.b64encode(response.content).decode()
@@ -86,3 +86,4 @@ def verify_image_answer(question_text, answer_text, image_path, domain):
             "score": 0.0, "reasoning": "AI service not available", "audit": "AI service not available"
 
         }
+
