@@ -93,14 +93,14 @@ def ProfilePage(request):
     answer_count = my_answers.count()
 
     # points
-    xp = question_count * 10 + answer_count * 5
+    xp = question_count * 5 + answer_count * 10
 
     users = User.objects.filter(is_superuser = False)
     leaderboard = []
     for u in users:
         q_count = Question.objects.filter(user=u).count()
         a_count = Answer.objects.filter(user=u).count()
-        xp_count = q_count * 10 + a_count * 5
+        xp_count = q_count * 5 + a_count * 10
         leaderboard.append({'user': u, 'xp': xp_count})
 
     rank = next((i+1 for i, entry in enumerate(sorted(leaderboard, key=lambda x: x['xp'], reverse=True)) if entry['user'] == user), None)
@@ -162,7 +162,7 @@ def LeaderboardPage(request):
     for user in users:
         question_count = Question.objects.filter(user=user).count()
         answer_count = Answer.objects.filter(user=user).count()
-        xp = question_count * 10 + answer_count * 5
+        xp = question_count * 5 + answer_count * 10
 
         leaderboard.append({
             "user": user,
@@ -228,4 +228,5 @@ def derive_domain_from_tags(tags):
         return "General"
 
     tag_list = [t.strip() for t in tags.split(",") if t.strip()]
+
     return ", ".join(tag_list[:3])  # limit to top 3
