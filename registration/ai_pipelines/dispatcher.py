@@ -5,14 +5,14 @@ from .vision_verifier import verify_image_answer
 def run_ai_verification(answer):
     try:
         has_text = bool(answer.body and answer.body.strip())
-        has_image = bool(answer.image)
+        has_image = bool(answer.image and answer.image.name)
         domain = derive_domain_from_tags(answer.question.tags)
 
         if has_image:
             result = verify_image_answer(
                 answer.question.body,
                 answer.body or '',
-                answer.image.url or answer.image.path,
+                answer.image.url,
                 domain
             )
         else:
@@ -23,7 +23,8 @@ def run_ai_verification(answer):
         answer.ai_audit = result.get('audit', '')
         answer.save(update_fields=['ai_score', 'ai_reasoning', 'ai_audit'])
 
-    except:
+    except Exception as e:
+        print(e)
         answer.ai_score = 0.0
         answer.ai_reasoning = 'AI assessment unavailable'
         answer.save(update_fields=['ai_score', 'ai_reasoning'])
@@ -39,5 +40,6 @@ def derive_domain_from_tags(tags):
     tag_list = [t.strip() for t in tags.split(",") if t.strip()]
 
     return ", ".join(tag_list[:3])  # limit to top 3
+
 
 
