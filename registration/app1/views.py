@@ -44,7 +44,7 @@ def HomePage(request):
 @login_required(login_url='login')
 def ask_question(request):
     if request.method == "POST":
-        form = QuestionForm(request.POST)
+        form = QuestionForm(request.POST, request.FILES)
         if form.is_valid():
             q = form.save(commit=False)
             q.user = request.user
@@ -230,3 +230,4 @@ def derive_domain_from_tags(tags):
     tag_list = [t.strip() for t in tags.split(",") if t.strip()]
 
     return ", ".join(tag_list[:3])  # limit to top 3
+
