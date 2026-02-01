@@ -5,7 +5,7 @@ from .vision_verifier import verify_image_answer
 def run_ai_verification(answer):
     try:
         has_text = bool(answer.body and answer.body.strip())
-        has_image = bool(answer.image and hasattr(answer.image, 'url'))
+        has_image = bool(answer.image)
         domain = derive_domain_from_tags(answer.question.tags)
 
         if has_image:
@@ -38,3 +38,4 @@ def derive_domain_from_tags(tags):
     tag_list = [t.strip() for t in tags.split(",") if t.strip()]
 
     return ", ".join(tag_list[:3])  # limit to top 3
+
