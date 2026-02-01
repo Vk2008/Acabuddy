@@ -191,7 +191,7 @@
     </div>
     
     <div class="form-container">
-        <form method = "post" enctype='multipart/form-data>
+        <form method = "post" enctype='multipart/form-data'>
             {%csrf_token %}
             <div class="form-group">
                 <label>Question Title</label>
@@ -201,10 +201,6 @@
             <div class="form-group">
                 <label>Details</label>
                 {{ form.body }}
-                <!-- <div class="image-upload-area" onclick="document.getElementById('image-input').click()">
-                    Click to upload image
-                    <input type="file" id="image-input" accept="image/*" style="display: none;">
-                </div> -->
             </div>
             <div class="form-group">
                 <label>Add Subject Tags</label>
@@ -231,7 +227,6 @@
             </div>
             
             <div class="buttons">
-                <!-- <button class="btn btn-draft" onclick="saveDraft()">Save Draft</button> -->
                 <button class="btn btn-post"">Post Question</button>
             </div>
     </div>
@@ -297,34 +292,6 @@
             }
         });
         
-        // // Image upload
-        // const imageInput = document.getElementById('image-input');
-        // const uploadArea = document.querySelector('.image-upload-area');
-        
-        // imageInput.addEventListener('change', function(e) {
-        //     if (e.target.files.length > 0) {
-        //         uploadArea.textContent = e.target.files[0].name;
-        //         uploadArea.style.background = '#e6f2ff';
-        //         uploadArea.style.borderColor = '#0066cc';
-        //         uploadArea.style.borderStyle = 'solid';
-        //     }
-        // });
-        
-        // // Save draft function
-        // function saveDraft() {
-        //     const btn = document.querySelector('.btn-draft');
-        //     const originalText = btn.textContent;
-        //     btn.textContent = 'Saved';
-        //     btn.style.background = '#e0ffe0';
-        //     btn.style.color = '#006600';
-            
-        //     setTimeout(() => {
-        //         btn.textContent = originalText;
-        //         btn.style.background = '#f0f0f0';
-        //         btn.style.color = '#666';
-        //     }, 1500);
-        // }
     </script>
 </body>
-
 </html>
