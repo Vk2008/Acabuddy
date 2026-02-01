@@ -12,7 +12,7 @@ def run_ai_verification(answer):
             result = verify_image_answer(
                 answer.question.body,
                 answer.body or '',
-                answer.image.url,
+                answer.image.url or answer.image.path,
                 domain
             )
         else:
@@ -24,8 +24,9 @@ def run_ai_verification(answer):
         answer.save(update_fields=['ai_score', 'ai_reasoning', 'ai_audit'])
 
     except:
+        answer.ai_score = 0.0
         answer.ai_reasoning = 'AI assessment unavailable'
-        answer.save(update_fields=['ai_reasoning'])
+        answer.save(update_fields=['ai_score', 'ai_reasoning'])
 
 def derive_domain_from_tags(tags):
     """
@@ -38,4 +39,5 @@ def derive_domain_from_tags(tags):
     tag_list = [t.strip() for t in tags.split(",") if t.strip()]
 
     return ", ".join(tag_list[:3])  # limit to top 3
+
 
