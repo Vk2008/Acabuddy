@@ -9,6 +9,8 @@ from django.db.models import Count
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.paginator import Paginator
 from ai_pipelines.ai_verifier import verify_answer
+from django.contrib import messages
+from django.http import JsonResponse
 # Create your views here.
 
 @login_required(login_url = 'login')
@@ -95,6 +97,31 @@ def ProfilePage(request):
     # points
     xp = question_count * 5 + answer_count * 10
 
+    achievement_title = user.profile.get_achievement_title()
+
+    # Get streak data
+    current_streak = user.profile.current_streak
+    longest_streak = user.profile.longest_streak
+
+    # Generate streak calendar data (last 30 days)
+    from datetime import date, timedelta
+    today = date.today()
+    streak_data = []
+    
+    # Get all activity dates for the user
+    question_dates = set(Question.objects.filter(user=user).values_list('created_at__date', flat=True))
+    answer_dates = set(Answer.objects.filter(user=user).values_list('created_at__date', flat=True))
+    activity_dates = question_dates.union(answer_dates)
+    
+    for i in range(30):
+        day = today - timedelta(days=29-i)
+        has_activity = day in activity_dates
+        streak_data.append({
+            'date': day,
+            'has_activity': has_activity,
+            'day_name': day.strftime('%a')[:1]  # First letter of day
+        })
+
     users = User.objects.filter(is_superuser = False)
     leaderboard = []
     for u in users:
@@ -112,7 +139,11 @@ def ProfilePage(request):
         'xp': xp,
         'my_questions': my_questions,
         'leaderboard': leaderboard,
-        'rank': rank
+        'rank': rank,
+        'achievement_title': achievement_title,
+        'current_streak': current_streak,
+        'longest_streak': longest_streak,
+        'streak_data': streak_data,
     }
 
     return render(request, 'profile.html', context)
@@ -180,6 +211,84 @@ def LeaderboardPage(request):
 
     return render(request, "leaderboard.html", {
         "page_obj": page_obj
+    })
+
+@login_required(login_url='login')
+def delete_question(request, question_id):
+    """Delete a question (only by owner)"""
+    question = get_object_or_404(Question, id=question_id)
+    
+    if request.user == question.user:
+        question.delete()
+        messages.success(request, 'Question deleted successfully!')
+        return redirect('home')
+    else:
+        messages.error(request, 'You can only delete your own questions!')
+        return redirect('question_detail', question_id=question_id)
+
+@login_required(login_url='login')
+def delete_answer(request, answer_id):
+    """Delete an answer (only by owner)"""
+    answer = get_object_or_404(Answer, id=answer_id)
+    question_id = answer.question.id
+    
+    if request.user == answer.user:
+        answer.delete()
+        messages.success(request, 'Answer deleted successfully!')
+    else:
+        messages.error(request, 'You can only delete your own answers!')
+    
+    return redirect('question_detail', question_id=question_id)
+
+@login_required(login_url='login')
+def edit_question(request, question_id):
+    """Edit a question (only by owner)"""
+    question = get_object_or_404(Question, id=question_id)
+    
+    if request.user != question.user:
+        messages.error(request, 'You can only edit your own questions!')
+        return redirect('question_detail', question_id=question_id)
+    
+    if request.method == "POST":
+        form = QuestionForm(request.POST, request.FILES, instance=question)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Question updated successfully!')
+            return redirect('question_detail', question_id=question_id)
+    else:
+        form = QuestionForm(instance=question)
+    
+    return render(request, "edit_question.html", {
+        "form": form,
+        "question": question
+    })
+
+@login_required(login_url='login')
+def edit_answer(request, answer_id):
+    """Edit an answer (only by owner)"""
+    answer = get_object_or_404(Answer, id=answer_id)
+    
+    if request.user != answer.user:
+        messages.error(request, 'You can only edit your own answers!')
+        return redirect('question_detail', question_id=answer.question.id)
+    
+    if request.method == "POST":
+        form = AnswerForm(request.POST, request.FILES, instance=answer)
+        if form.is_valid():
+            form.save()
+            
+            # Re-run AI verification
+            from ai_pipelines.dispatcher import run_ai_verification
+            run_ai_verification(answer)
+            
+            messages.success(request, 'Answer updated and re-verified!')
+            return redirect('question_detail', question_id=answer.question.id)
+    else:
+        form = AnswerForm(instance=answer)
+    
+    return render(request, "edit_answer.html", {
+        "form": form,
+        "answer": answer
     })
 
 def LoginPage(request):

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AcaBuddy - Edit Question</title>
+    {% load static %}
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .app-name {
+            color: #0066cc;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .back-btn {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+        
+        .back-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        textarea.input-field {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .tags-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .tag {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .tag.selected {
+            background: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        
+        .tag.add-tag {
+            font-weight: bold;
+            background: #e9ecef;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .btn-cancel {
+            background: #f0f0f0;
+            color: #666;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-save {
+            background: #0066cc;
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background: #0055aa;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="brand">
+            <img src="{% static 'images/logo.png' %}" alt="AcaBuddy logo">
+            <span class="app-name">Edit Question</span>
+        </div>
+        <a href="{% url 'question_detail' question.id %}" class="back-btn">← Back</a>
+    </div>
+    
+    <div class="form-container">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Question Title</label>
+                {{ form.title }}
+            </div>
+            
+            <div class="form-group">
+                <label>Details</label>
+                {{ form.body }}
+            </div>
+            
+            <div class="form-group">
+                <label>Subject Tags</label>
+                <div class="tags-container" id="tagsContainer">
+                    <div class="tag" data-tag="Mathematics">Mathematics</div>
+                    <div class="tag" data-tag="Physics">Physics</div>
+                    <div class="tag" data-tag="Chemistry">Chemistry</div>
+                    <div class="tag" data-tag="Biology">Biology</div>
+                    <div class="tag add-tag" id="addTagBtn">+</div>
+                </div>
+                {{ form.tags.as_hidden }}
+
+                <input
+                type="text"
+                id="customTagInput"
+                class="input-field"
+                placeholder="Enter subject tag and press Enter"
+                style="margin-top: 10px; display: none;"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label>Attach Image</label>
+                {{ form.image }}
+                {% if question.image %}
+                <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                    Current image: <a href="{{ question.image.url }}" target="_blank">View</a>
+                </p>
+                {% endif %}
+            </div>
+            
+            <div class="buttons">
+                <a href="{% url 'question_detail' question.id %}" class="btn btn-cancel">Cancel</a>
+                <button type="submit" class="btn btn-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Tag selection
+        const tagsContainer = document.getElementById('tagsContainer');
+        const hiddenTagInput = document.querySelector('input[name="tags"]');
+        const addTagBtn = document.getElementById('addTagBtn');
+        const customTagInput = document.getElementById('customTagInput');
+
+        // Pre-populate selected tags
+        let selectedTags = hiddenTagInput.value ? hiddenTagInput.value.split(',').map(t => t.trim()) : [];
+        
+        // Mark existing tags as selected
+        selectedTags.forEach(tag => {
+            const tagElement = document.querySelector(`[data-tag="${tag}"]`);
+            if (tagElement) {
+                tagElement.classList.add('selected');
+            } else {
+                // Add custom tag
+                const newTag = document.createElement('div');
+                newTag.className = 'tag selected';
+                newTag.dataset.tag = tag;
+                newTag.textContent = tag;
+                tagsContainer.insertBefore(newTag, addTagBtn);
+            }
+        });
+
+        tagsContainer.addEventListener('click', function(e) {
+            const tag = e.target;
+
+            if (!tag.classList.contains('tag')) return;
+
+            if (tag.classList.contains('add-tag')) {
+                customTagInput.style.display = 'block';
+                customTagInput.focus();
+                return;
+            }
+
+            const value = tag.dataset.tag;
+
+            if (selectedTags.includes(value)) {
+                selectedTags = selectedTags.filter(t => t !== value);
+                tag.classList.remove('selected');
+            } else {
+                selectedTags.push(value);
+                tag.classList.add('selected');
+            }
+
+            hiddenTagInput.value = selectedTags.join(',');
+        });
+
+        customTagInput.addEventListener('keydown', function(e){
+            if (e.key === 'Enter') {
+                e.preventDefault();
+
+                const value = customTagInput.value.trim();
+                if(!value) return;
+
+                if (selectedTags.includes(value)) {
+                    customTagInput.value = '';
+                    customTagInput.style.display = 'none';
+                    return;
+                }
+
+                const newTag = document.createElement('div');
+                newTag.className = 'tag selected';
+                newTag.dataset.tag = value;
+                newTag.textContent = value;
+
+                tagsContainer.insertBefore(newTag, addTagBtn);
+
+                selectedTags.push(value);
+                hiddenTagInput.value = selectedTags.join(',');
+
+                customTagInput.value = '';
+                customTagInput.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

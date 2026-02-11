@@ -33,6 +33,10 @@ urlpatterns = [
     path('profile/', views.ProfilePage, name = 'profile'),
     path("settings/", views.account_settings, name="account_settings"),
     path('leaderboard/', views.LeaderboardPage, name='leaderboard')
+    path('question/<int:question_id>/delete/', views.delete_question, name='delete_question'),
+    path('question/<int:question_id>/edit/', views.edit_question, name='edit_question'),
+    path('answer/<int:answer_id>/delete/', views.delete_answer, name='delete_answer'),
+    path('answer/<int:answer_id>/edit/', views.edit_answer, name='edit_answer'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

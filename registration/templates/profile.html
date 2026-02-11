@@ -302,11 +302,47 @@
                 <div class="avatar"></div>
             {% endif %}
             <h3>{{ profile_name }}</h3>
+            <div class="achievement-title">{{ achievement_title }}</div>
             {% if rank %}
                 <h4>Rank #{{ rank }}</h4>
             {% endif %}
             </p>
         </div>
+
+        <!-- Streak -->
+        <div class="profile-card">
+            <h3 class="section-title">🔥 Activity Streak</h3>
+            <div class="streak-stats">
+                <div class="streak-stat">
+                    <div class="streak-stat-value">{{ current_streak }}</div>
+                    <div class="streak-stat-label">Current Streak</div>
+                </div>
+                <div class="streak-stat">
+                    <div class="streak-stat-value">{{ longest_streak }}</div>
+                    <div class="streak-stat-label">Longest Streak</div>
+                </div>
+            </div>
+            
+            <div class="streak-calendar">
+                {% for day in streak_data %}
+                <div class="streak-day {% if day.has_activity %}active{% endif %}"
+                     title="{{ day.date }}">
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="streak-legend">
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #eee;"></div>
+                    <span>No activity</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: var(--primary-blue);"></div>
+                    <span>Active</span>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Stats -->
         <div class="profile-card">

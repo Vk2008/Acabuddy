@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from cloudinary.models import CloudinaryField
-
+from django.utils import timezone
+from datetime import timedelta
 
 class Question(models.Model):
     title = models.CharField(max_length=255)
@@ -33,12 +34,68 @@ class Answer(models.Model):
     blank=True,
     null=True
 )
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
+    current_streak = models.IntegerField(default=0)
+    longest_streak = models.IntegerField(default=0)
+    last_activity_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return self.user.username
+    
+    def update_streak(self):
+        """Update user's streak based on activity"""
+        today = timezone.now().date()
+        
+        if self.last_activity_date is None:
+            # First activity
+            self.current_streak = 1
+            self.last_activity_date = today
+        elif self.last_activity_date == today:
+            # Already counted today
+            return
+        elif self.last_activity_date == today - timedelta(days=1):
+            # Consecutive day
+            self.current_streak += 1
+            self.last_activity_date = today
+        else:
+            # Streak broken
+            self.current_streak = 1
+            self.last_activity_date = today
+        
+        # Update longest streak
+        if self.current_streak > self.longest_streak:
+            self.longest_streak = self.current_streak
+        
+        self.save()
+
+    def get_achievement_title(self):
+        """Return achievement title based on XP"""
+        question_count = Question.objects.filter(user=self.user).count()
+        
+        answer_count = Answer.objects.filter(
+            user=self.user,
+            ai_score__gte=0.6
+        ).count()
+        
+        xp = question_count * 5 + answer_count * 10
+        
+        if xp >= 2000:
+            return "🏆 Academic Authority"
+        elif xp >= 1200:
+            return "💎 Subject Luminary"
+        elif xp >= 700:
+            return "⭐ Scholarly Anchor"
+        elif xp >= 350:
+            return "📚 Knowledge Architect"
+        elif xp >= 150:
+            return "🌟 Insight Crafter"
+        elif xp >= 50:
+            return "📖 Concept Seeker"
+        else:
+            return "🌱 Fresh Mind"
     
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
