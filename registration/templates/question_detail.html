@@ -249,6 +249,13 @@
                     style="max-width:100%; margin-top:10px; border-radius:6px;">
             {% endif %}
             <small>Asked by {{ question.user.username }}</small>
+            {% if request.user == question.user %}
+            <div style="margin-top:12px;">
+                <button id="mentorBtn" class="submit-btn" style="background:#28a745;">
+                    Try Mentor Mode
+                </button>
+            </div>
+            {% endif %}
             <!-- Edit/Delete buttons for question owner -->
             {% if request.user == question.user %}
             <div class="action-buttons">
@@ -354,6 +361,31 @@
 
     </div>
 
+    <!-- Mentor Modal -->
+    <div id="mentorModal" class="ai-modal">
+        <div class="ai-modal-content" style="max-width:500px; height:70vh; display:flex; flex-direction:column;">
+            
+            <span class="ai-close" id="closeMentor">✕</span>
+            <h4 style="margin-top:0;">Mentor Mode</h4>
+
+            <div id="mentorChatBox" style="
+                flex:1;
+                border:1px solid #ddd;
+                border-radius:6px;
+                padding:10px;
+                overflow-y:auto;
+                margin-bottom:10px;
+                background:#f9f9f9;">
+            </div>
+
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="mentorInput"
+                    placeholder="Type your reply..."
+                    style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px;">
+                <button id="mentorSend" class="submit-btn">Send</button>
+            </div>
+        </div>
+    </div>
     <script>
     function openModal(id) {
         document.getElementById(`modal-${id}`).style.display = "block";
@@ -361,6 +393,92 @@
 
     function closeModal(id) {
         document.getElementById(`modal-${id}`).style.display = "none";
+    }
+
+    /* ===========================
+    MENTOR MODE FUNCTIONALITY
+    =========================== */
+
+    let mentorSessionId = null;
+
+    const mentorBtn = document.getElementById("mentorBtn");
+    const mentorModal = document.getElementById("mentorModal");
+    const closeMentor = document.getElementById("closeMentor");
+    const mentorChatBox = document.getElementById("mentorChatBox");
+    const mentorInput = document.getElementById("mentorInput");
+    const mentorSend = document.getElementById("mentorSend");
+
+    if (mentorBtn) {
+        mentorBtn.addEventListener("click", async () => {
+            mentorModal.style.display = "block";
+            mentorChatBox.innerHTML = "<p>Starting mentor session...</p>";
+
+            const response = await fetch("/mentor/start/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    question_id: "{{ question.id }}"
+                })
+            });
+
+            const data = await response.json();
+
+            mentorSessionId = data.session_id;
+            mentorChatBox.innerHTML = "";
+            addMentorMessage(data.mentor_message);
+        });
+    }
+
+    closeMentor.onclick = () => mentorModal.style.display = "none";
+
+    mentorSend?.addEventListener("click", sendMentorMessage);
+
+    mentorInput?.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") sendMentorMessage();
+    });
+
+    async function sendMentorMessage() {
+        const message = mentorInput.value.trim();
+        if (!message) return;
+
+        addUserMessage(message);
+        mentorInput.value = "";
+
+        const response = await fetch("/mentor/chat/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                session_id: mentorSessionId,
+                message: message
+            })
+        });
+
+        const data = await response.json();
+        addMentorMessage(data.mentor_message);
+    }
+
+    function addMentorMessage(text) {
+        const div = document.createElement("div");
+        div.style.marginBottom = "8px";
+        div.style.color = "#007bff";
+        div.innerText = "Mentor: " + text;
+        mentorChatBox.appendChild(div);
+        mentorChatBox.scrollTop = mentorChatBox.scrollHeight;
+    }
+
+    function addUserMessage(text) {
+        const div = document.createElement("div");
+        div.style.marginBottom = "8px";
+        div.style.color = "#28a745";
+        div.innerText = "You: " + text;
+        mentorChatBox.appendChild(div);
+        mentorChatBox.scrollTop = mentorChatBox.scrollHeight;
     }
     </script>
 </body>

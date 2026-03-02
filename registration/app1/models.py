@@ -6,6 +6,7 @@ from cloudinary.models import CloudinaryField
 from django.utils import timezone
 from datetime import timedelta
 
+
 class Question(models.Model):
     title = models.CharField(max_length=255)
     body = models.TextField()
@@ -16,9 +17,10 @@ class Question(models.Model):
     'image',
     blank=True,
     null=True
-)
+    )
     def tag_list(self):
         return [t.strip() for t in self.tags.split(',') if t.strip()]
+
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, related_name="answers", on_delete=models.CASCADE)
@@ -34,6 +36,17 @@ class Answer(models.Model):
     blank=True,
     null=True
 )
+
+
+class MentorSession(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.ForeignKey("Question", on_delete=models.CASCADE)
+    conversation = models.JSONField(default=list)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"MentorSession {self.id} - {self.user.username}"
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -73,8 +86,10 @@ class Profile(models.Model):
 
     def get_achievement_title(self):
         """Return achievement title based on XP"""
+        # Calculate XP
         question_count = Question.objects.filter(user=self.user).count()
         
+        # Count only verified answers (ai_score >= 0.6)
         answer_count = Answer.objects.filter(
             user=self.user,
             ai_score__gte=0.6
@@ -82,20 +97,31 @@ class Profile(models.Model):
         
         xp = question_count * 5 + answer_count * 10
         
-        if xp >= 2000:
-            return "🏆 Academic Authority"
-        elif xp >= 1200:
-            return "💎 Subject Luminary"
-        elif xp >= 700:
-            return "⭐ Scholarly Anchor"
-        elif xp >= 350:
-            return "📚 Knowledge Architect"
-        elif xp >= 150:
-            return "🌟 Insight Crafter"
-        elif xp >= 50:
-            return "📖 Concept Seeker"
-        else:
-            return "🌱 Fresh Mind"
+        achievements = [
+            (2000, "Academic Authority", "/static/badges/academic_authority.png"),
+            (1200, "Subject Luminary", "/static/badges/subject_luminary.png"),
+            (700,  "Scholarly Anchor", "/static/badges/scholarly_anchor.png"),
+            (350,  "Knowledge Architect", "/static/badges/knowledge_architect.png"),
+            (150,  "Insight Crafter", "/static/badges/insight_crafter.png"),
+            (50,   "Concept Seeker", "/static/badges/concept_seeker.png"),
+            (0,    "Fresh Mind", "/static/badges/fresh_mind.png"),
+        ]
+
+        for threshold, title, badge in achievements:
+            if xp >= threshold:
+                return {"title": title, "badge_url": badge, "xp": xp}
+
+        # Fallback
+        return {"title": "Fresh Mind", "badge_url": "/static/badges/fresh_mind.png", "xp": xp}
+    
+    def get_xp(self):
+        question_count = Question.objects.filter(user=self.user).count()
+        verified_answers = Answer.objects.filter(
+            user=self.user,
+            ai_score__gte=0.6
+        ).count()
+
+        return question_count * 5 + verified_answers * 10
     
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):

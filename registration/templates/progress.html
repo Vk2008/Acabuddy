@@ -1,0 +1,317 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AcaBuddy - Progress</title>
+<!-- Favicon -->
+<link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+:root {
+    --primary-blue: #007bff;
+    --light-gray: #f4f6f9;
+    --text-dark: #333;
+    --text-light: #666;
+    --border-color: #eee;
+}
+
+body {
+    font-family: sans-serif;
+    background: var(--light-gray);
+    margin: 0;
+    padding: 0;
+    color: var(--text-dark);
+}
+
+.app-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 70px;
+}
+
+.app-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: bold;
+    font-size: 1.4em;
+    color: var(--primary-blue);
+}
+
+/* HERO */
+.hero {
+    padding: 20px;
+}
+
+.xp-number {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.level-text {
+    font-size: 0.9em;
+    color: var(--text-light);
+}
+
+.progress-bar {
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 8px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: var(--progress);
+    background: var(--primary-blue);
+    border-radius: 8px;
+}
+
+/* Cards */
+.card {
+    padding: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.card-title {
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* Stats grid */
+.stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.stat-box {
+    background: #f9fafb;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.stat-number {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+/* Subject bars */
+.subject-bar {
+    margin-bottom: 10px;
+}
+
+.subject-name {
+    font-size: 0.85em;
+    margin-bottom: 4px;
+}
+
+.subject-progress {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.subject-fill {
+    height: 100%;
+    width: var(--progress);
+    background: var(--primary-blue);
+}
+
+/* Weekly */
+.week-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8em;
+    margin-bottom: 6px;
+}
+
+/* Bottom nav */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    max-width: 600px;
+    height: 60px;
+    background-color: white;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.7em;
+}
+
+.nav-item i {
+    font-size: 1.3em;
+    margin-bottom: 3px;
+}
+
+.nav-item.active {
+    color: var(--primary-blue);
+}
+</style>
+</head>
+
+<body>
+
+<div class="app-container">
+
+<div class="app-header">Progress</div>
+
+<!-- Achievement Card -->
+<div style="
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #ffffff;
+    padding: 14px 18px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-top: 20px;
+">
+
+    <!-- Badge Image -->
+    <img src="{{ badge_url }}" 
+         alt="{{ achievement_title }} badge"
+         style="
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: #f4f6f9;
+            padding: 6px;
+         ">
+
+    <!-- Title Text -->
+    <div style="display:flex; flex-direction: column;">
+        <span style="
+            font-weight: 600; 
+            font-size: 15px; 
+            color: #1a1a1a;
+        ">
+            {{ achievement_title }}
+        </span>
+
+        <span style="
+            font-size: 12px;
+            color: #666;
+        ">
+            Current Achievement
+        </span>
+    </div>
+
+</div>
+<div class="hero">
+    <div class="xp-number">{{ xp }} XP</div>
+    <div class="level-text">
+        Level {{ level }}
+        {% if xp_to_next > 0 %}
+            • {{ xp_to_next }} XP to next level
+        {% else %}
+            • Max Level
+        {% endif %}
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill"
+             style="--progress: {{ progress_percent }}%;">
+        </div>
+    </div>
+
+    <div style="margin-top:10px;">
+        🔥 {{ current_streak }} Day Streak
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">Stats</div>
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-number">{{ question_count }}</div>
+            Questions
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ answer_count }}</div>
+            Answers
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ verified_answers }}</div>
+            Verified
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ ai_verified_percent }}%</div>
+            AI Accuracy
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">Subject Activity</div>
+
+    {% for subject in subjects %}
+    <div class="subject-bar">
+        <div class="subject-name">
+            {{ subject.name }} ({{ subject.percent }}%)
+        </div>
+        <div class="subject-progress">
+            <div class="subject-fill"
+                 style="--progress: {{ subject.percent }}%;">
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div style="font-size:0.85em;color:#666;">
+        No tagged questions yet.
+    </div>
+    {% endfor %}
+</div>
+
+<!-- <div class="card">
+    <div class="card-title">Weekly Activity</div>
+
+    {% for day in weekly_data %}
+    <div class="week-row">
+        <div>{{ day.day }}</div>
+        <div>Q: {{ day.questions }} | A: {{ day.answers }}</div>
+    </div>
+    {% endfor %}
+</div> -->
+
+<nav class="bottom-nav">
+    <a href="{% url 'home' %}" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+    <a href="{% url 'leaderboard' %}" class="nav-item">
+        <i class="fas fa-trophy"></i>
+        <span>Leaderboard</span>
+    </a>
+    <a href="{% url 'progress' %}" class="nav-item active">
+        <i class="fas fa-chart-line"></i>
+        <span>Progress</span>
+    </a>
+    <a href="{% url 'profile' %}" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+</nav>
+
+</div>
+</body>
+</html>

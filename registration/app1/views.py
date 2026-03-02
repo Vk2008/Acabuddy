@@ -1,16 +1,21 @@
+import json
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from .models import Question, Answer
+from .models import Question, Answer, MentorSession
 from .forms import QuestionForm, AnswerForm, ProfilePictureForm, UsernameChangeForm
 from collections import Counter
 from django.db.models import Count
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.paginator import Paginator
 from ai_pipelines.ai_verifier import verify_answer
+from ai_pipelines.mentor import call_free_model
 from django.contrib import messages
 from django.http import JsonResponse
+from .similarity import find_similar_questions
+from datetime import date, timedelta
+from django .views.decorators.csrf import csrf_exempt
 # Create your views here.
 
 @login_required(login_url = 'login')
@@ -48,6 +53,16 @@ def ask_question(request):
     if request.method == "POST":
         form = QuestionForm(request.POST, request.FILES)
         if form.is_valid():
+            title = form.cleaned_data['title']
+            body = form.cleaned_data['body']
+            combined_text = title + ' ' + body
+
+            if "force_post" not in request.POST:
+                similar_questions = find_similar_questions(combined_text)
+
+                if similar_questions:
+                    return render(request, 'similar_questions.html', {'form': form, 'similar_questions': similar_questions})
+            
             q = form.save(commit=False)
             q.user = request.user
             q.save()
@@ -82,6 +97,90 @@ def question_detail(request, question_id):
         "form": form,
     })
 
+MENTOR_SYSTEM_PROMPT = """
+You are Acabuddy Mentor.
+
+Rules:
+- Guide step by step.
+- Ask ONE question at a time.
+- NEVER give the full solution.
+- Encourage thinking.
+- Be collaborative and natural.
+- If student struggles, give small hints. Motivate.
+- Always end with a question UNLESS THE ANSWER IS COMPLETE.
+
+If student asks for full solution:
+Encourage them to try once more before revealing.
+"""
+
+@csrf_exempt
+def start_mentor(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        question_id = data.get("question_id")
+
+        question = get_object_or_404(Question, id=question_id)
+
+        # Only question owner allowed
+        if request.user != question.user:
+            return JsonResponse({"error": "Unauthorized"}, status=403)
+
+        system_msg = {"role": "system", "content": MENTOR_SYSTEM_PROMPT}
+        user_msg = {
+            "role": "user",
+            "content": f"The student asked: {question.title}. Start guiding them."
+        }
+
+        conversation = [system_msg, user_msg]
+
+        mentor_reply = call_free_model(conversation)
+
+        conversation.append({"role": "assistant", "content": mentor_reply})
+
+        session = MentorSession.objects.create(
+            user=request.user,
+            question=question,
+            conversation=conversation
+        )
+
+        return JsonResponse({
+            "session_id": session.id,
+            "mentor_message": mentor_reply
+        })
+
+
+@csrf_exempt
+def mentor_chat(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        session_id = data.get("session_id")
+        user_input = data.get("message")
+
+        session = get_object_or_404(MentorSession, id=session_id)
+
+        if request.user != session.user:
+            return JsonResponse({"error": "Unauthorized"}, status=403)
+
+        session.conversation.append({
+            "role": "user",
+            "content": user_input
+        })
+
+        # Limit context size
+        if len(session.conversation) > 12:
+            session.conversation = session.conversation[-12:]
+
+        mentor_reply = call_free_model(session.conversation)
+
+        session.conversation.append({
+            "role": "assistant",
+            "content": mentor_reply
+        })
+
+        session.save()
+
+        return JsonResponse({"mentor_message": mentor_reply})
+
 @login_required(login_url='login')
 def ProfilePage(request):
     user = request.user
@@ -97,7 +196,7 @@ def ProfilePage(request):
     # points
     xp = question_count * 5 + answer_count * 10
 
-    achievement_title = user.profile.get_achievement_title()
+    achievement = user.profile.get_achievement_title()
 
     # Get streak data
     current_streak = user.profile.current_streak
@@ -140,13 +239,124 @@ def ProfilePage(request):
         'my_questions': my_questions,
         'leaderboard': leaderboard,
         'rank': rank,
-        'achievement_title': achievement_title,
+        'achievement_title': achievement['title'],
+        'badge_url': achievement['badge_url'],
         'current_streak': current_streak,
         'longest_streak': longest_streak,
         'streak_data': streak_data,
     }
 
     return render(request, 'profile.html', context)
+
+
+@login_required(login_url='login')
+def ProgressPage(request):
+    user = request.user
+    profile = user.profile
+
+    # Basic counts
+    question_count = Question.objects.filter(user=user).count()
+    answer_count = Answer.objects.filter(user=user).count()
+    verified_answers = Answer.objects.filter(
+        user=user,
+        ai_score__gte=0.6
+    ).count()
+
+    # XP Calculation
+    xp = question_count * 5 + answer_count * 10
+
+    achievement = user.profile.get_achievement_title()
+
+    # Level thresholds
+    LEVELS = [0, 50, 150, 350, 700, 1200, 2000]
+
+    level = 1
+    current_level_xp = 0
+    next_level_xp = None
+
+    for i in range(len(LEVELS)):
+        if xp >= LEVELS[i]:
+            level = i + 1
+            current_level_xp = LEVELS[i]
+            if i + 1 < len(LEVELS):
+                next_level_xp = LEVELS[i + 1]
+            else:
+                next_level_xp = None
+
+    if next_level_xp:
+        xp_into_level = xp - current_level_xp
+        xp_required = next_level_xp - current_level_xp
+        progress_percent = int((xp_into_level / xp_required) * 100)
+        xp_to_next = next_level_xp - xp
+    else:
+        xp_into_level = 0
+        xp_required = 0
+        progress_percent = 100
+        xp_to_next = 0
+
+    # AI Verified %
+    ai_verified_percent = 0
+    if answer_count > 0:
+        ai_verified_percent = int((verified_answers / answer_count) * 100)
+    from datetime import date, timedelta
+    # Weekly Activity (Last 7 days)
+    today = date.today()
+    weekly_data = []
+
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+
+        q_count = Question.objects.filter(
+            user=user,
+            created_at__date=day
+        ).count()
+
+        a_count = Answer.objects.filter(
+            user=user,
+            created_at__date=day
+        ).count()
+
+        weekly_data.append({
+            "day": day.strftime("%a"),
+            "questions": q_count,
+            "answers": a_count,
+        })
+
+    # Subject Breakdown
+    tag_counter = Counter()
+
+    user_questions = Question.objects.filter(user=user).exclude(tags='')
+    for q in user_questions:
+        tags = [t.strip() for t in q.tags.split(',') if t.strip()]
+        tag_counter.update(tags)
+
+    total_tagged = sum(tag_counter.values())
+    subjects = []
+
+    for tag, count in tag_counter.items():
+        percent = int((count / total_tagged) * 100) if total_tagged > 0 else 0
+        subjects.append({
+            "name": tag,
+            "percent": percent
+        })
+
+    context = {
+        "xp": xp,
+        "level": level,
+        "progress_percent": progress_percent,
+        "xp_to_next": xp_to_next,
+        "current_streak": profile.current_streak,
+        "question_count": question_count,
+        "answer_count": answer_count,
+        "verified_answers": verified_answers,
+        "ai_verified_percent": ai_verified_percent,
+        "weekly_data": weekly_data,
+        "subjects": subjects,
+        'achievement_title': achievement['title'],
+        'badge_url': achievement['badge_url'],
+    }
+
+    return render(request, "progress.html", context)
 
 @login_required(login_url='login')
 def account_settings(request):
@@ -292,6 +502,7 @@ def edit_answer(request, answer_id):
     })
 
 def LoginPage(request):
+    error = None
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('pass')
@@ -300,10 +511,12 @@ def LoginPage(request):
             login(request, user)
             return redirect('home')
         else:
-            return HttpResponse('User not found.')
-    return render(request, 'login.html')
+            error = "Incorrect username or password."
+    return render(request, 'login.html', {"error": error})
 
 def SignupPage(request):
+    error = None
+    success = None
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -311,14 +524,18 @@ def SignupPage(request):
         pass2 = request.POST.get('password2')
 
         if pass1!= pass2:
-            return HttpResponse("Passwords do not match")
+            error = "Passwords do not match"
+        elif User.objects.filter(username=username).exists():
+            error = "Username already exists."
+        elif User.objects.filter(email=email).exists():
+            error = "Email already registered."
         else:
             user = User.objects.create_user(username, email, pass1)
             user.save()
-            return redirect('login')
+            success = "Account created successfully! You can now log in."
 
 
-    return render(request, 'signup.html')
+    return render(request, 'signup.html', {'error': error, 'success': success})
 
 def Logout(request):
     logout(request)

@@ -33,6 +33,9 @@ urlpatterns = [
     path('profile/', views.ProfilePage, name = 'profile'),
     path("settings/", views.account_settings, name="account_settings"),
     path('leaderboard/', views.LeaderboardPage, name='leaderboard'),
+    path('progress/', views.ProgressPage, name='progress'),
+    path("mentor/start/", views.start_mentor, name="start_mentor"),
+    path("mentor/chat/", views.mentor_chat, name="mentor_chat"),
     path('question/<int:question_id>/delete/', views.delete_question, name='delete_question'),
     path('question/<int:question_id>/edit/', views.edit_question, name='edit_question'),
     path('answer/<int:answer_id>/delete/', views.delete_answer, name='delete_answer'),
@@ -41,5 +44,4 @@ urlpatterns = [
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
-
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

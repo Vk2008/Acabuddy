@@ -4,15 +4,18 @@ from .vision_verifier import verify_image_answer
     
 def run_ai_verification(answer):
     try:
+        question = answer.question
         has_text = bool(answer.body and answer.body.strip())
-        has_image = bool(answer.image and answer.image.url)
+        has_image_q = bool(question.image and question.image.url)
+        has_image_a = bool(answer.image and answer.image.url)
         domain = derive_domain_from_tags(answer.question.tags)
 
-        if has_image:
+        if has_image_q or has_image_a:
             result = verify_image_answer(
                 answer.question.body,
                 answer.body or '',
-                answer.image.url,
+                answer.image.url if has_image_a else None,
+                question.image.url if has_image_q else None,
                 domain
             )
         else:

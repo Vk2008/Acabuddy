@@ -302,15 +302,27 @@
                 <div class="avatar"></div>
             {% endif %}
             <h3>{{ profile_name }}</h3>
-            <div class="achievement-title">{{ achievement_title }}</div>
+            {% load static %}
+
+
             {% if rank %}
-                <h4>Rank #{{ rank }}</h4>
-            {% endif %}
-            </p>
+                <div style="
+                    display: inline-block;
+                    background: rgba(0,123,255,0.08);
+                    color: #007bff;
+                    padding: 6px 14px;
+                    border-radius: 20px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    margin-top: 10px;
+                ">
+                    🏆 Rank #{{ rank }}
+                </div>
+                {% endif %}
         </div>
 
         <!-- Streak -->
-        <div class="profile-card">
+        <!-- <div class="profile-card">
             <h3 class="section-title">🔥 Activity Streak</h3>
             <div class="streak-stats">
                 <div class="streak-stat">
@@ -341,31 +353,7 @@
                     <span>Active</span>
                 </div>
             </div>
-        </div>
-
-
-        <!-- Stats -->
-        <div class="profile-card">
-            <h3 class="section-title">Achievements Snapshot</h3>
-            <div class="achievements-grid">
-                <div class="achievement-card">
-                    <i class="fas fa-check-circle achievement-icon"></i>
-                    <div class="achievement-value">{{ answer_count }}</div>
-                    <div class="achievement-label">Answers Posted</div>
-                </div>
-                <div class="achievement-card-xp">
-                    <i class="fas fa-trophy achievement-icon-xp"></i>
-                    <div class="achievement-value-xp">{{ xp }}</div>
-                    <div class="achievement-label">Total XP</div>
-                </div>
-                <div class="achievement-card">
-                    <i class="fas fa-check-circle achievement-icon"></i>
-                    <div class="achievement-value">{{ question_count }}</div>
-                    <div class="achievement-label">Questions Asked</div>
-                </div>
-            </div>
-        </div>
-
+        </div> -->
         <!-- My Questions -->
         <div class="profile-card">
             <h3>Your Questions</h3>
@@ -414,7 +402,7 @@
             <i class="fas fa-trophy"></i>
             <span>Leaderboard</span>
         </a>
-        <a href="#" class="nav-item">
+        <a href="{% url 'progress' %}" class="nav-item">
             <i class="fas fa-chart-line"></i>
             <span>Progress</span>
         </a>

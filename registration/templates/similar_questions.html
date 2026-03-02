@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AcaBuddy - Similar Question Found</title>
+    {% load static %}
+
+    <link rel="icon" href="{% static 'images/logo.png' %}" type="image/png">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand img {
+            width: 28px;
+            height: 28px;
+        }
+
+        .app-name {
+            color: #0066cc;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .back-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .info-text {
+            margin-bottom: 20px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .similar-item {
+            padding: 12px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+
+        .similar-item:hover {
+            background: #f0f8ff;
+            border-color: #0066cc;
+        }
+
+        .similar-item a {
+            text-decoration: none;
+            color: #0066cc;
+            font-weight: 500;
+        }
+
+        .similar-score {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .btn-cancel {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-post {
+            background: #0066cc;
+            color: white;
+        }
+
+        .btn-post:hover {
+            background: #0055aa;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="brand">
+            <img src="{% static 'images/logo.png' %}" alt="AcaBuddy logo">
+            <span class="app-name">AcaBuddy</span>
+        </div>
+        <a href="{% url 'home' %}" class="back-btn">← Back to Home</a>
+    </div>
+
+    <div class="container">
+
+        <h2>Similar Question Found</h2>
+
+        <p class="info-text">
+            We found similar questions that might already have answers.
+            Would you like to review them before posting?
+        </p>
+
+        {% for item in similar_questions %}
+            <div class="similar-item">
+                <a href="{% url 'question_detail' item.question.id %}">
+                    {{ item.question.title }}
+                </a>
+                <div class="similar-score">
+                    Similarity Score: {{ item.score }}
+                </div>
+            </div>
+        {% endfor %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <div class="buttons">
+                <a href="{% url 'ask_question' %}" class="btn btn-cancel">
+                    Edit Question
+                </a>
+                <button type="submit" name="force_post" class="btn btn-post">
+                    Post Anyway
+                </button>
+            </div>
+        </form>
+
+    </div>
+
+</body>
+</html>
