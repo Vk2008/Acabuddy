@@ -1,6 +1,7 @@
 from .models import Question
 from registration.embeddings import embed
 from pgvector.django import CosineDistance
+from sentence_transformers import SentenceTransformer
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 SIMILARITY_THRESHOLD = 0.5
