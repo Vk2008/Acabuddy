@@ -5,6 +5,8 @@ from django.dispatch import receiver
 from cloudinary.models import CloudinaryField
 from django.utils import timezone
 from datetime import timedelta
+from pgvector.django import VectorField
+from registration.embeddings import embed
 
 
 class Question(models.Model):
