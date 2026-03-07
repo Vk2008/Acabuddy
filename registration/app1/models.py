@@ -12,6 +12,7 @@ class Question(models.Model):
     body = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     tags = models.CharField(max_length = 200, blank = True, help_text = "Comma-separated tags")
+    embedding = VectorField(dimensions=384, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     image = CloudinaryField(
     'image',
@@ -20,6 +21,14 @@ class Question(models.Model):
     )
     def tag_list(self):
         return [t.strip() for t in self.tags.split(',') if t.strip()]
+    
+    def save(self, *args, **kwargs):
+
+        if not self.embedding:
+            text = f"{self.title} {self.body}"
+            self.embedding = embed(text)
+
+        super().save(*args, **kwargs)
 
 
 class Answer(models.Model):

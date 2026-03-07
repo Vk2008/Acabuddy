@@ -1,28 +1,20 @@
-from sentence_transformers import SentenceTransformer, util
 from .models import Question
+from registration.embeddings import embed
+from pgvector.django import CosineDistance
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 SIMILARITY_THRESHOLD = 0.5
 
-def find_similar_questions(text):
-    existing = Question.objects.all()
+def find_similar_questions(text, limit=5):
 
-    if not existing.exists():
-        return []
+    query_embedding = embed(text)
 
-    corpus = [q.title + " " + q.body for q in existing]
-    corpus_embeddings = model.encode(corpus, convert_to_tensor=True)
+    results = (
+        Question.objects
+        .exclude(embedding=None)
+        .annotate(similarity=1 - CosineDistance("embedding", query_embedding))
+        .filter(similarity__gte=SIMILARITY_THRESHOLD)
+        .order_by("-similarity")[:limit]
+    )
 
-    new_embedding = model.encode(text, convert_to_tensor=True)
-    scores = util.cos_sim(new_embedding, corpus_embeddings)[0]
-
-    similar = []
-
-    for idx, score in enumerate(scores):
-        if score.item() >= SIMILARITY_THRESHOLD:
-            similar.append({
-                "question": existing[idx],
-                "score": round(score.item(), 2)
-            })
-
-    return sorted(similar, key=lambda x: x["score"], reverse=True)
+    return results

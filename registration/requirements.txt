@@ -13,3 +13,5 @@ asgiref==3.11.0
 
 cloudinary
 django-cloudinary-storage
+sentence-transformers
+pgvector
