@@ -25,12 +25,12 @@ class Question(models.Model):
     
     def save(self, *args, **kwargs):
 
-    if self.embedding is None or self.pk is None:
-        from registration.embeddings import embed
-        text = f"{self.title} {self.body}"
-        self.embedding = embed(text)
+        if self.embedding is None or self.pk is None:
+            from registration.embeddings import embed
+            text = f"{self.title} {self.body}"
+            self.embedding = embed(text)
 
-    super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class Answer(models.Model):
