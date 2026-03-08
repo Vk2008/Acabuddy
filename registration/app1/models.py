@@ -6,7 +6,6 @@ from cloudinary.models import CloudinaryField
 from django.utils import timezone
 from datetime import timedelta
 from pgvector.django import VectorField
-from registration.embeddings import embed
 
 
 class Question(models.Model):
@@ -26,11 +25,12 @@ class Question(models.Model):
     
     def save(self, *args, **kwargs):
 
-        if not self.embedding:
-            text = f"{self.title} {self.body}"
-            self.embedding = embed(text)
+    if self.embedding is None or self.pk is None:
+        from registration.embeddings import embed
+        text = f"{self.title} {self.body}"
+        self.embedding = embed(text)
 
-        super().save(*args, **kwargs)
+    super().save(*args, **kwargs)
 
 
 class Answer(models.Model):

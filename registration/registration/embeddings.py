@@ -1,6 +1,13 @@
-from sentence_transformers import SentenceTransformer
+import cohere
+import os
 
-model = SentenceTransformer("paraphrase-MiniLM-L3-v2")
+co = cohere.Client(os.getenv("COHERE_API_KEY"))
 
-def embed(text: str):
-    return model.encode(text).tolist()
+def embed(text):
+
+    response = co.embed(
+        texts=[text],
+        model="embed-english-light-v3.0"
+    )
+
+    return response.embeddings[0]
