@@ -1,7 +1,7 @@
 from .models import Question
 from pgvector.django import CosineDistance
 
-SIMILARITY_THRESHOLD = 0.5
+SIMILARITY_THRESHOLD = 0.65
 
 
 def find_similar_questions(text, limit=5):

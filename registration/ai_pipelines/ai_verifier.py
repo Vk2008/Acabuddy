@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SMART_MODEL = "llama-3.3-70b"
+SMART_MODEL = "llama3.1-8b"
 FAST_MODEL = "llama3.1-8b"
 
 client = Cerebras(api_key=os.getenv("CEREBRAS_API_KEY"))

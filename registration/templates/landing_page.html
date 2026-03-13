@@ -53,15 +53,98 @@
         gap: 30px;
     }
 
-    .card {
-        padding: 30px;
-        background: white;
-        border-radius: 20px;
-        border: 1px solid var(--light-gray);
-        transition: 0.3s;
+    .feature-slider{
+    overflow:hidden;
+    width:100%;
     }
-    .card:hover { border-color: var(--primary); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+
+    .slider-track{
+    display:flex;
+    gap:25px;
+    width:max-content;
+    animation:scrollFeatures 25s linear infinite;
+    }
+
     .card h3 { margin-bottom: 15px; color: var(--primary); }
+
+    .card{
+    min-width:250px;
+    max-width:270px;
+    padding:25px;
+    background:white;
+    border-radius:20px;
+    border:1px solid var(--light-gray);
+    transition:0.3s;
+    }
+
+    .card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    @keyframes scrollFeatures{
+    0%{
+    transform:translateX(0);
+    }
+    100%{
+    transform:translateX(-25%);
+    }
+    }
+
+    .slider-track:hover{
+    animation-play-state:paused;
+    }
+
+    .demo-section{
+        padding:80px 10%;
+        background:#fafafa;
+    }
+
+    .demo-container{
+        display:flex;
+        align-items:center;
+        gap:60px;
+    }
+
+    .demo-video{
+        flex:1;
+    }
+
+    .demo-video video{
+        width:100%;
+        border-radius:10px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .demo-text{
+        flex:1;
+    }
+
+    .demo-text h2{
+        margin-bottom:20px;
+    }
+
+    .step{
+        margin-bottom:18px;
+    }
+
+    .step h4{
+        color:#0066cc;
+        margin-bottom:4px;
+    }
+
+    .step p{
+        color:#555;
+        font-size:14px;
+    }
+
+    /* responsive */
+
+    @media (max-width:900px){
+        .demo-container{
+            flex-direction:column;
+        }
+    }
 
     /* Acknowledgements / Tech Section */
     .tech-section { background: var(--light-gray); padding: 60px 20px; border-radius: 40px; margin: 20px; }
@@ -79,6 +162,31 @@
     /* Developers Section */
     .devs { text-align: center; padding: 60px 20px; }
     .dev-names { font-weight: 600; color: var(--text); font-size: 1.2rem; }
+
+    .contact-section{
+        padding:60px 10%;
+        text-align:center;
+        background:#f9f9f9;
+    }
+
+    .contact-section h2{
+        margin-bottom:15px;
+    }
+
+    .contact-section p{
+        font-size:16px;
+        color:#555;
+    }
+
+    .contact-section a{
+        color:#0066cc;
+        text-decoration:none;
+        font-weight:500;
+    }
+
+    .contact-section a:hover{
+        text-decoration:underline;
+    }
 
     /* Footer */
     footer { text-align: center; padding: 40px; font-size: 0.9rem; color: #9ca3af; }
@@ -98,31 +206,115 @@
         <h1>Acabuddy</h1>
         <p>Your academic social circle. Post questions, help peers, and get your answers verified by cutting-edge AI logic.</p>
         <div class="btn-container">
-            <a href="{% url 'signup' %}" class="btn btn-main">Enter Dashboard</a>
+            <a href="{% url 'signup' %}" class="btn btn-main">Get Started</a>
         </div>
     </section>
+    <h2 class="section-title">Why AcaBuddy?</h2>
 
-    <section class="section">
-        <h2 class="section-title">Why Acabuddy?</h2>
-        <div class="feature-grid">
-            <div class="card">
-                <h3>Post & Resolve</h3>
-                <p>Stuck on a Math or Physics problem? Upload it and let the community help you find the way.</p>
-            </div>
-            <div class="card">
-                <h3>AI Verification</h3>
-                <p>No more guessing. Every peer solution is audited by AI for conceptual and mathematical accuracy.</p>
-            </div>
-            <div class="card">
-                <h3>Earn Points</h3>
-                <p>Contribute to the community. Answer questions, earn points, and build your profile as a subject expert.</p>
-            </div>
-        </div>
-    </section>
+    <div class="feature-slider">
+    <div class="slider-track">
+    <div class="card">
+    <h3>📚 Post & Answer Questions</h3>
+    <p>Stuck on a Math or Physics problem? Upload it and let the community help you find the way.</p>
+    </div>
+
+    <div class="card">
+    <h3>🤖 AI Verification</h3>
+    <p>No more guessing. Every peer solution is audited by AI for conceptual and mathematical accuracy.</p>
+    </div>
+
+    <div class="card">
+    <h3>🏆 Earn Points & Badges</h3>
+    <p>Contribute to the community. Answer questions, earn points, and build your profile as a subject expert.</p>
+    </div>
+
+    <div class="card">
+    <h3>🔎 Similar Question Detection</h3>
+    <p>Find similar previously asked questions instantly using similarity search.</p>
+    </div>
+
+    <div class="card">
+    <h3>🧠 Mentor-Style Guidance</h3>
+    <p>AI provides hints and reasoning checks instead of simply giving answers.</p>
+    </div>
+
+    <!-- duplicate cards for seamless scroll -->
+
+    <div class="card">
+    <h3>📚 Post & Answer Questions</h3>
+    <p>Stuck on a Math or Physics problem? Upload it and let the community help you find the way.</p>
+    </div>
+
+    <div class="card">
+    <h3>🤖 AI Verification</h3>
+    <p>No more guessing. Every peer solution is audited by AI for conceptual and mathematical accuracy.</p>
+    </div>
+
+    <div class="card">
+    <h3>🏆 Earn Points & Badges</h3>
+    <p>Contribute to the community. Answer questions, earn points, and build your profile as a subject expert.</p>
+    </div>
+
+    <div class="card">
+    <h3>🔎 Similar Question Detection</h3>
+    <p>Find similar previously asked questions instantly using similarity search.</p>
+    </div>
+
+    <div class="card">
+    <h3>🧠 Mentor-Style Guidance</h3>
+    <p>AI provides hints and reasoning checks instead of simply giving answers.</p>
+    </div>
+    </div>
+    </div>
     <section class="section" style="text-align: center; border-top: 1px solid #eee;">
-        <p class="loading-tag">🚀 More features loading: Study Groups | Monthly Reports | Achievement Titles</p>
+        <p class="loading-tag">🚀 More features loading: Study Groups | Monthly Reports | LATEX Support</p>
     </section>
     
+    <section class="demo-section">
+        <div class="demo-container">
+            <div class="demo-video">
+                <video controls>
+                    <source src="{% static 'images/working.mp4' %}" type="video/mp4">
+                    Video not supported.
+                </video>
+            </div>
+
+            <div class="demo-text">
+
+                <h2>AcaBuddy In Action</h2>
+
+                <div class="step">
+                    <h4>1. Join Acabuddy</h4>
+                    <p>Sign up & join AcaBuddy for free. Login with your credentials.</p>
+                </div>
+
+                <div class="step">
+                    <h4>2. Ask & Answer Questions</h4>
+                    <p>Upload a doubt with image, or answer a question to build confidence!</p>
+                </div>
+
+                <div class="step">
+                    <h4>3. Common Questions?</h4>
+                    <p>Find similar asked questions, to avoid hassle.</p>
+                </div>
+
+                <div class="step">
+                    <h4>4. AI Verification</h4>
+                    <p>Have your solution checked by AI for conceptual and logical correctness.</p>
+                </div>
+
+                <div class="step">
+                    <h4>5. Stuck?</h4>
+                    <p>Have the AI-mentor provides hints instead of directly giving the answer.</p>
+                </div>
+                <div class="step">
+                    <h4>Keep earning badges. The more you learn, the more you grow!</h4>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
 
     <section class="tech-section">
         <div class="section">
@@ -137,12 +329,24 @@
                     <span>Unified API access for multimodal model deployment.</span>
                 </div>
                 <div class="tech-item">
-                    <strong>Mistral AI</strong>
-                    <span>Vision intelligence via Pixtral 12B for image analysis.</span>
+                    <strong>Cohere</strong>
+                    <span>Provides high-quality embeddings to enable semantic similarity search between questions.</span>
                 </div>
                 <div class="tech-item">
                     <strong>Meta AI</strong>
-                    <span>Logic and reasoning foundation via the Llama 3 family.</span>
+                    <span>Logic and vision-based analysis via the Llama 3 family.</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Cloudinary</strong>
+                    <span>Handles secure image uploads and media storage for question images.</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Supabase</strong>
+                    <span>PostgreSQL database infrastructure powering the Acabuddy backend.</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Render</strong>
+                    <span>Cloud infrastructure hosting the Acabuddy backend and web services.</span>
                 </div>
             </div>
         </div>
@@ -152,6 +356,17 @@
         <h2>Built for Students, by Students</h2>
         <p class="dev-names">Vanshika Kataria & Rahela Hasan</p>
         <p style="margin-top: 20px;">Dedicated to making collaborative learning smarter and more natural.</p>
+    </section>
+    <section class="contact-section">
+
+        <h2>Contact</h2>
+
+        <p>
+            Have questions for us?<br>
+            Contact us at:
+            <a href="mailto:admin.acabuddy@gmail.com">admin.acabuddy@gmail.com</a>
+        </p>
+
     </section>
 
     <footer>

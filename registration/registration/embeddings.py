@@ -7,7 +7,8 @@ def embed(text):
 
     response = co.embed(
         texts=[text],
-        model="embed-english-light-v3.0"
+        model="embed-english-light-v3.0",
+        input_type="search_document"
     )
 
     return response.embeddings[0]

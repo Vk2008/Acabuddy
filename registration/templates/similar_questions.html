@@ -157,13 +157,13 @@
             Would you like to review them before posting?
         </p>
 
-        {% for item in similar_questions %}
+        {% for q in similar_questions %}
             <div class="similar-item">
-                <a href="{% url 'question_detail' item.question.id %}">
-                    {{ item.question.title }}
+                <a href="{% url 'question_detail' q.id %}">
+                    {{ q.title }}
                 </a>
                 <div class="similar-score">
-                    Similarity Score: {{ item.score }}
+                    Similarity Score: {{ q.similarity|floatformat:2 }}
                 </div>
             </div>
         {% endfor %}
