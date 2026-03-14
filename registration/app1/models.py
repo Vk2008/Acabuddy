@@ -26,10 +26,14 @@ class Question(models.Model):
     def save(self, *args, **kwargs):
 
         if self.embedding is None or self.pk is None:
-            from registration.embeddings import embed
-            text = f"{self.title} {self.body}"
-            self.embedding = embed(text)
-
+            try:
+                from registration.embeddings import embed
+                text = f"{self.title} {self.body}"
+                self.embedding = embed(text)
+            except Exception as e:
+                # Log the error and continue saving
+                print(f"Embedding failed: {e}")
+                self.embedding = None
         super().save(*args, **kwargs)
 
 
